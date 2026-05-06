@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import Recycler.FolderAdapter;
 import model.Folder;
 import okhttp3.*;
-import requestActivity.RequestsActivity;
+import com.example.vaultify.requestActivity.RequestsActivity;
 
 import com.example.vaultify.Login_signup.LoginActivity;
 import com.example.vaultify.dashboard.DashboardActivity;

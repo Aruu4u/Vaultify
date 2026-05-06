@@ -21,7 +21,7 @@
             android:name=".dashboard.DashboardActivity"
             android:exported="false" />
         <activity
-            android:name="requestActivity.RequestsActivity"
+            android:name=".requestActivity.RequestsActivity"
             android:exported="false" />
         <activity
             android:name=".Login_signup.VerifyActivity"

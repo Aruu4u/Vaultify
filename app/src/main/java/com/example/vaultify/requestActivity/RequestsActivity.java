@@ -1,4 +1,4 @@
-package requestActivity;
+package com.example.vaultify.requestActivity;
 
 import android.os.Bundle;
 import android.util.Log;
