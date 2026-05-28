@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="@color/background">
 
-    <!-- Header -->
-    <LinearLayout
+    <View
+        android:id="@+id/header_bg"
         android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/primary"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="?attr/colorPrimary">
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:text="Access Requests"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Access Requests"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white" />
+    <TextView
+        android:id="@+id/header_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage folder permissions"
+        android:textColor="@color/primary_light"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/header_title"
+        app:layout_constraintTop_toBottomOf="@id/header_title" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Review and manage folder access requests"
-            android:textSize="14sp"
-            android:textColor="@android:color/white"
-            android:alpha="0.87"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/noRequestText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Pending Requests"
+        android:textSize="18sp"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone"
+        android:padding="16dp"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="@id/requestRecycler"
+        app:layout_constraintEnd_toEndOf="@id/requestRecycler"
+        app:layout_constraintTop_toTopOf="@id/requestRecycler"
+        app:layout_constraintBottom_toBottomOf="@id/requestRecycler" />
 
-    <!-- RecyclerView with proper margins -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/requestRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false" />
-</LinearLayout>
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_bg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

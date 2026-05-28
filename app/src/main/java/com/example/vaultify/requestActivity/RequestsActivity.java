@@ -2,6 +2,8 @@ package com.example.vaultify.requestActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -32,6 +34,7 @@ public class RequestsActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<AccessRequest> list = new ArrayList<>();
     RequestAdapter adapter;
+    TextView noRequestText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +44,7 @@ public class RequestsActivity extends AppCompatActivity {
         Toast.makeText(this, "Requests screen opened", Toast.LENGTH_SHORT).show();
         recyclerView = findViewById(R.id.requestRecycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        noRequestText = findViewById(R.id.noRequestText);
 
         adapter = new RequestAdapter(list, this::approveRequest);
         recyclerView.setAdapter(adapter);
@@ -59,7 +63,7 @@ public class RequestsActivity extends AppCompatActivity {
             json.put("requesterEmail", r.requesterEmail);
 
             json.put("ownerId", r.ownerId);
-            json.put("type", type); // 👈 NEW
+            json.put("type", type); //  NEW
 
             RequestBody body = RequestBody.create(
                     json.toString(),
@@ -100,7 +104,14 @@ public class RequestsActivity extends AppCompatActivity {
                 Log.d("API_RESPONSE", body); // 👈 ADD THIS
 
                 Log.d("FETCH_OWNER_ID", ownerId);
-                if (body.isEmpty()) return;
+                if (body.isEmpty()) {
+                    runOnUiThread(() -> {
+                        list.clear();
+                        adapter.notifyDataSetChanged();
+                        noRequestText.setVisibility(View.VISIBLE);
+                    });
+                    return;
+                }
                 JSONArray arr = new JSONArray(body);
 
                 ArrayList<AccessRequest> tmp = new ArrayList<>();
@@ -112,10 +123,10 @@ public class RequestsActivity extends AppCompatActivity {
                     String requesterId = o.getString("requesterId");
                     String ownerIdFromApi = o.getString("ownerId");
 
-                    // ✅ ONLY show valid incoming requests
+                    // ONLY show valid incoming requests
                     if (!ownerIdFromApi.equals(currentUserId)) continue;
 
-                    // ❌ skip self-requests
+                    //  skip self-requests
                     if (requesterId.equals(currentUserId)) continue;
 
                     AccessRequest r = new AccessRequest();
@@ -133,9 +144,15 @@ public class RequestsActivity extends AppCompatActivity {
                     list.clear();
                     list.addAll(tmp);
                     adapter.notifyDataSetChanged();
+                    noRequestText.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
                 });
 
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    noRequestText.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
+                });
+            }
         }).start();
     }
     private String extractUserIdFromToken(String jwt) {
@@ -149,7 +166,7 @@ public class RequestsActivity extends AppCompatActivity {
 
             JSONObject json = new JSONObject(payload);
 
-            return json.getString("sub"); // 👈 THIS is userId
+            return json.getString("sub"); //  THIS is userId
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/background">
+
+    <View
+        android:id="@+id/top_accent"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/primary"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/folderTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Folder"
+        android:layout_marginStart="24dp"
+        android:text="Folder Permissions"
+        android:textColor="@color/white"
         android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/top_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/top_accent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/permissionRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="12dp" />
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_accent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
