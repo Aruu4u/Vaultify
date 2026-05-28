@@ -9,4 +9,5 @@ public class Folder {
     public boolean hasAccess = false;
     public String accessType = "";
     public long expiresAt = 0;
+    public boolean isPending = false;
 }

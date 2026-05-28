@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,6 +46,8 @@ public class DashboardAdapter
     static class VH extends RecyclerView.ViewHolder {
 
         TextView folderName;
+        TextView folderStatus;
+        MaterialButton openFolderBtn;
         ImageButton menuBtn;
 
         VH(View v) {
@@ -52,6 +55,12 @@ public class DashboardAdapter
 
             folderName =
                     v.findViewById(R.id.folderName);
+
+            folderStatus =
+                    v.findViewById(R.id.folderStatus);
+
+            openFolderBtn =
+                    v.findViewById(R.id.openFolderBtn);
 
             menuBtn =
                     v.findViewById(R.id.menuBtn);
@@ -85,47 +94,59 @@ public class DashboardAdapter
 
         holder.folderName.setText(folder.name);
 
-        holder.menuBtn.setOnClickListener(v -> {
-
-            PopupMenu popup =
-                    new PopupMenu(context, holder.menuBtn);
-
-            popup.getMenu().add("Open Folder");
-            popup.getMenu().add("Permissions");
-
-            popup.setOnMenuItemClickListener(item -> {
-
-                if (item.getTitle()
-                        .equals("Open Folder")) {
-
-                    listener.onOpen(folder);
-                }
-
-                else {
-
-                    Intent i = new Intent(
-                            context,
-                            PermissionActivity.class
-                    );
-
-                    i.putExtra(
-                            "folderId",
-                            folder.folderId
-                    );
-
-                    i.putExtra(
-                            "folderName",
-                            folder.name
-                    );
-
-                    context.startActivity(i);
-                }
-
-                return true;
+        if (folder.isPublic) {
+            holder.folderStatus.setVisibility(View.VISIBLE);
+            holder.menuBtn.setVisibility(View.GONE);
+            holder.openFolderBtn.setVisibility(View.VISIBLE);
+            holder.openFolderBtn.setOnClickListener(v -> {
+                listener.onOpen(folder);
             });
+        } else {
+            holder.folderStatus.setVisibility(View.GONE);
+            holder.menuBtn.setVisibility(View.VISIBLE);
+            holder.openFolderBtn.setVisibility(View.GONE);
+            holder.menuBtn.setOnClickListener(v -> {
 
-            popup.show();
-        });
+                PopupMenu popup =
+                        new PopupMenu(context, holder.menuBtn);
+
+                popup.getMenu().add("Open Folder");
+                popup.getMenu().add("Permissions");
+
+                popup.setOnMenuItemClickListener(item -> {
+
+                    if (item.getTitle()
+                            .equals("Open Folder")) {
+
+                        listener.onOpen(folder);
+                    }
+
+                    else {
+
+                        Intent i = new Intent(
+                                context,
+                                PermissionActivity.class
+                        );
+
+                        i.putExtra(
+                                "folderId",
+                                folder.folderId
+                        );
+
+                        i.putExtra(
+                                "folderName",
+                                folder.name
+                        );
+
+                        context.startActivity(i);
+                    }
+
+                    return true;
+                });
+
+                popup.show();
+            });
+        }
     }
 
     @Override

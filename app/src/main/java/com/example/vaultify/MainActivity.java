@@ -123,11 +123,11 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onRequestClick(Folder folder) {
+                    public void onRequestClick(Folder folder, int position) {
 
                         sendAccessRequest(
-                                folder.folderId,
-                                folder.ownerId
+                                folder,
+                                position
                         );
                     }
                 });
@@ -370,7 +370,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void sendAccessRequest(String folderId, String ownerId) {
+    private void sendAccessRequest(Folder folder, int position) {
+        String folderId = folder.folderId;
+        String ownerId = folder.ownerId;
 
         SharedPreferences prefs = getSharedPreferences("app", MODE_PRIVATE);
         String token = prefs.getString("token", null);
@@ -410,9 +412,11 @@ public class MainActivity extends AppCompatActivity {
 
                     String res = response.body().string();   // 👈 GET RESPONSE
                     Log.d("REQUEST_API_RESPONSE", res);
-                    runOnUiThread(() ->
-                            Toast.makeText(this, "Request Sent", Toast.LENGTH_SHORT).show()
-                    );
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Request Sent", Toast.LENGTH_SHORT).show();
+                        folder.isPending = true;
+                        adapter.notifyItemChanged(position);
+                    });
 
                 } catch (Exception e) {
                     e.printStackTrace();

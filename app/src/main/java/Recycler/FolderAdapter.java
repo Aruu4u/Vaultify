@@ -22,7 +22,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
 
         void onFolderClick(Folder folder);
 
-        void onRequestClick(Folder folder);
+        void onRequestClick(Folder folder, int position);
     }
 
     OnFolderActionListener listener;
@@ -139,9 +139,17 @@ public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         holder.requestBtn.setVisibility(View.VISIBLE);
 
-        holder.requestBtn.setOnClickListener(v -> {
-            listener.onRequestClick(folder);
-        });
+        if (folder.isPending) {
+            holder.requestBtn.setText("Request Pending ..");
+            holder.requestBtn.setEnabled(false);
+            holder.requestBtn.setOnClickListener(null);
+        } else {
+            holder.requestBtn.setText("Request");
+            holder.requestBtn.setEnabled(true);
+            holder.requestBtn.setOnClickListener(v -> {
+                listener.onRequestClick(folder, holder.getAdapterPosition());
+            });
+        }
     }
 }
 
