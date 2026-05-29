@@ -54,12 +54,20 @@ public class DashboardActivity extends AppCompatActivity {
                     // OPEN FOLDER
                     Intent i = new Intent(
                             DashboardActivity.this,
-                            MainActivity.class
+                            com.example.vaultify.dashboard.FolderContentActivity.class
                     );
 
                     i.putExtra(
                             "folderId",
                             folder.folderId
+                    );
+                    i.putExtra(
+                            "folderName",
+                            folder.name
+                    );
+                    i.putExtra(
+                            "isOwner",
+                            true
                     );
 
                     startActivity(i);

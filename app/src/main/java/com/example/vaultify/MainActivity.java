@@ -94,31 +94,31 @@ public class MainActivity extends AppCompatActivity {
                         String currentUserId =
                                 extractUserIdFromToken(token);
 
-                        // ✅ PUBLIC
+                        // PUBLIC
                         if (folder.isPublic) {
 
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Opening public folder",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                            Intent intent = new Intent(MainActivity.this, com.example.vaultify.dashboard.FolderContentActivity.class);
+                            intent.putExtra("folderId", folder.folderId);
+                            intent.putExtra("folderName", folder.name);
+                            intent.putExtra("isOwner", folder.ownerId.equals(currentUserId));
+                            startActivity(intent);
 
                             return;
                         }
 
-                        // ✅ OWNER
+                        //  OWNER
                         if (folder.ownerId.equals(currentUserId)) {
 
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Opening your folder",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                            Intent intent = new Intent(MainActivity.this, com.example.vaultify.dashboard.FolderContentActivity.class);
+                            intent.putExtra("folderId", folder.folderId);
+                            intent.putExtra("folderName", folder.name);
+                            intent.putExtra("isOwner", true);
+                            startActivity(intent);
 
                             return;
                         }
 
-                        // ✅ CHECK SHARED ACCESS
+                        // CHECK SHARED ACCESS
                         checkPermissionAndOpen(folder);
                     }
 
@@ -192,21 +192,21 @@ public class MainActivity extends AppCompatActivity {
                     String currentUserId =
                             extractUserIdFromToken(token);
 
-// ✅ OWNER HAS ACCESS
+// OWNER HAS ACCESS
                     if (folder.ownerId.equals(currentUserId)) {
 
                         folder.hasAccess = true;
                         folder.accessType = "permanent";
                     }
 
-// ✅ PUBLIC HAS ACCESS
+// PUBLIC HAS ACCESS
                     else if (folder.isPublic) {
 
                         folder.hasAccess = true;
                         folder.accessType = "public";
                     }
 
-// ✅ CHECK SHARED ACCESS
+//  CHECK SHARED ACCESS
                     else {
 
                         try {
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         Toast.makeText(this, "Folder Created", Toast.LENGTH_SHORT).show();
 
-                        fetchFolders(); // 🔥 refresh list
+                        fetchFolders(); //  refresh list
                     });
 
                 } catch (Exception e) {
@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
 
             JSONObject json = new JSONObject(payload);
 
-            return json.getString("sub"); // 👈 THIS IS IMPORTANT
+            return json.getString("sub"); // THIS IS IMPORTANT
 
         } catch (Exception e) {
             return "unknown";
@@ -410,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
             new Thread(() -> {
                 try (Response response = client.newCall(request).execute()) {
 
-                    String res = response.body().string();   // 👈 GET RESPONSE
+                    String res = response.body().string();   //  GET RESPONSE
                     Log.d("REQUEST_API_RESPONSE", res);
                     runOnUiThread(() -> {
                         Toast.makeText(this, "Request Sent", Toast.LENGTH_SHORT).show();
@@ -438,14 +438,14 @@ public class MainActivity extends AppCompatActivity {
         String currentUserId =
                 extractUserIdFromToken(token);
 
-        // ✅ OWNER
+        //  OWNER
         if (folder.ownerId.equals(currentUserId)) {
 
-            Toast.makeText(
-                    this,
-                    "Opening owner folder",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(MainActivity.this, com.example.vaultify.dashboard.FolderContentActivity.class);
+            intent.putExtra("folderId", folder.folderId);
+            intent.putExtra("folderName", folder.name);
+            intent.putExtra("isOwner", true);
+            startActivity(intent);
 
             return;
         }
@@ -487,7 +487,12 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT
                             ).show();
 
-                            // 🔥 OPEN FOLDER HERE
+                            //  OPEN FOLDER HERE
+                            Intent intent = new Intent(MainActivity.this, com.example.vaultify.dashboard.FolderContentActivity.class);
+                            intent.putExtra("folderId", folder.folderId);
+                            intent.putExtra("folderName", folder.name);
+                            intent.putExtra("isOwner", false);
+                            startActivity(intent);
 
                         } else {
 

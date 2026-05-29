@@ -18,6 +18,9 @@
             android:name=".dashboard.PermissionActivity"
             android:exported="false" />
         <activity
+            android:name=".dashboard.FolderContentActivity"
+            android:exported="false" />
+        <activity
             android:name=".dashboard.DashboardActivity"
             android:exported="false" />
         <activity
