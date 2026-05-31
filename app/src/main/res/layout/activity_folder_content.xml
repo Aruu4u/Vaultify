@@ -27,7 +27,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_launcher_background"
+                android:src="@drawable/ic_arrow_back"
                 app:tint="@color/text_primary" />
             <TextView
                 android:id="@+id/tvFolderName"

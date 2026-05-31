@@ -32,8 +32,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String REQUEST_STATE_PREFS = "request_state";
+    private static final String PENDING_REQUESTS_KEY = "pendingFolderRequests";
+    private static final String DENIED_REQUEST_PAIRS_KEY = "deniedRequestPairs";
+
     RecyclerView recyclerView;
     ArrayList<Folder> folderList = new ArrayList<>();
     FolderAdapter adapter;
@@ -257,6 +263,17 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
+                    if (folder.hasAccess) {
+                        removePendingFolderRequest(currentUserId, folder.folderId);
+                    } else if (hasPendingFolderRequest(currentUserId, folder.folderId)) {
+                        removeDeniedRequestPair(
+                                folder.ownerId,
+                                currentUserId,
+                                folder.folderId
+                        );
+                        folder.isPending = true;
+                    }
+
                     parsedList.add(folder);
                 }
 
@@ -266,14 +283,6 @@ public class MainActivity extends AppCompatActivity {
                     folderList.clear();
                     folderList.addAll(parsedList);
                     adapter.notifyDataSetChanged();
-                    StringBuilder result = new StringBuilder();
-
-                    for (Folder f : folderList) {
-                        result.append(f.name).append("\n");
-                    }
-
-                    Toast.makeText(this, result.toString(), Toast.LENGTH_LONG).show();
-                    Toast.makeText(this, "Folders: " + array.length(), Toast.LENGTH_SHORT).show();
                 });
 
             } catch (Exception e) {
@@ -301,16 +310,27 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setTitle("Create Folder");
 
-        builder.setPositiveButton("Create", (dialog, which) -> {
-            String name = nameInput.getText().toString();
-            boolean isPublic = isPublicSwitch.isChecked();
-
-            createFolderAPI(name, isPublic);
-        });
+        builder.setPositiveButton("Create", null);
 
         builder.setNegativeButton("Cancel", null);
 
-        builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(d -> {
+            Button createButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            createButton.setOnClickListener(v -> {
+                String name = nameInput.getText().toString().trim();
+                boolean isPublic = isPublicSwitch.isChecked();
+
+                if (name.isEmpty()) {
+                    nameInput.setError("Folder name required");
+                    return;
+                }
+
+                createFolderAPI(name, isPublic);
+                dialog.dismiss();
+            });
+        });
+        dialog.show();
     }
     private void createFolderAPI(String name, boolean isPublic) {
 
@@ -324,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
             JSONObject json = new JSONObject();
             json.put("name", name);
             json.put("isPublic", isPublic);
-            json.put("ownerId", userId); // later replace with real user
+            json.put("ownerId", userId);
 
             RequestBody body = RequestBody.create(
                     json.toString(),
@@ -386,6 +406,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        if (folder.isPending || hasPendingFolderRequest(requesterId, folderId)) {
+            folder.isPending = true;
+            adapter.notifyItemChanged(position);
+            Toast.makeText(this, "Request Pending ..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
             Log.d("SEND_REQUEST_OWNER", ownerId);
             Log.d("SEND_REQUEST_REQUESTER", requesterId);
@@ -410,12 +437,18 @@ public class MainActivity extends AppCompatActivity {
             new Thread(() -> {
                 try (Response response = client.newCall(request).execute()) {
 
-                    String res = response.body().string();   //  GET RESPONSE
+                    String res = response.body().string();
                     Log.d("REQUEST_API_RESPONSE", res);
                     runOnUiThread(() -> {
-                        Toast.makeText(this, "Request Sent", Toast.LENGTH_SHORT).show();
-                        folder.isPending = true;
-                        adapter.notifyItemChanged(position);
+                        if (response.isSuccessful()) {
+                            removeDeniedRequestPair(ownerId, requesterId, folderId);
+                            savePendingFolderRequest(requesterId, folderId);
+                            Toast.makeText(this, "Request Sent", Toast.LENGTH_SHORT).show();
+                            folder.isPending = true;
+                            adapter.notifyItemChanged(position);
+                        } else {
+                            Toast.makeText(this, "Request failed", Toast.LENGTH_SHORT).show();
+                        }
                     });
 
                 } catch (Exception e) {
@@ -426,6 +459,68 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private Set<String> getPendingFolderRequests() {
+        return new HashSet<>(
+                getSharedPreferences(REQUEST_STATE_PREFS, MODE_PRIVATE)
+                        .getStringSet(PENDING_REQUESTS_KEY, new HashSet<>())
+        );
+    }
+
+    private String pendingFolderRequestKey(String userId, String folderId) {
+        return userId + ":" + folderId;
+    }
+
+    private boolean hasPendingFolderRequest(String userId, String folderId) {
+        return getPendingFolderRequests().contains(
+                pendingFolderRequestKey(userId, folderId)
+        );
+    }
+
+    private void savePendingFolderRequest(String userId, String folderId) {
+        Set<String> pendingRequests = getPendingFolderRequests();
+        pendingRequests.add(pendingFolderRequestKey(userId, folderId));
+
+        getSharedPreferences(REQUEST_STATE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putStringSet(PENDING_REQUESTS_KEY, pendingRequests)
+                .apply();
+    }
+
+    private void removePendingFolderRequest(String userId, String folderId) {
+        Set<String> pendingRequests = getPendingFolderRequests();
+
+        if (!pendingRequests.remove(pendingFolderRequestKey(userId, folderId))) {
+            return;
+        }
+
+        getSharedPreferences(REQUEST_STATE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putStringSet(PENDING_REQUESTS_KEY, pendingRequests)
+                .apply();
+    }
+
+    private void removeDeniedRequestPair(
+            String ownerId,
+            String requesterId,
+            String folderId
+    ) {
+        Set<String> deniedRequestPairs = new HashSet<>(
+                getSharedPreferences(REQUEST_STATE_PREFS, MODE_PRIVATE)
+                        .getStringSet(DENIED_REQUEST_PAIRS_KEY, new HashSet<>())
+        );
+
+        if (!deniedRequestPairs.remove(
+                ownerId + ":" + requesterId + ":" + folderId
+        )) {
+            return;
+        }
+
+        getSharedPreferences(REQUEST_STATE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putStringSet(DENIED_REQUEST_PAIRS_KEY, deniedRequestPairs)
+                .apply();
     }
 
     private void checkPermissionAndOpen(Folder folder) {

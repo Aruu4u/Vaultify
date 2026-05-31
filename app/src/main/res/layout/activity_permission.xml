@@ -35,4 +35,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_accent" />
 
+    <TextView
+        android:id="@+id/noActiveUserText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="No Active User"
+        android:textColor="@color/text_secondary"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/permissionRecycler"
+        app:layout_constraintEnd_toEndOf="@id/permissionRecycler"
+        app:layout_constraintStart_toStartOf="@id/permissionRecycler"
+        app:layout_constraintTop_toTopOf="@id/permissionRecycler" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

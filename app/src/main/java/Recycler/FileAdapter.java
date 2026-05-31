@@ -74,7 +74,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                 DateUtils.MINUTE_IN_MILLIS
         );
 
-        String details = fileItem.size + " • " + timeAgo;
+        String details = fileItem.size + " - " + timeAgo;
         holder.fileDetails.setText(details);
         
         // Simple icon logic based on extension

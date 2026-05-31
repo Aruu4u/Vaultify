@@ -28,6 +28,8 @@ public class PermissionActivity
 
     TextView folderTitle;
 
+    TextView noActiveUserText;
+
     RecyclerView recyclerView;
 
     ArrayList<PermissionUser> list =
@@ -50,6 +52,9 @@ public class PermissionActivity
 
         recyclerView =
                 findViewById(R.id.permissionRecycler);
+
+        noActiveUserText =
+                findViewById(R.id.noActiveUserText);
 
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(this)
@@ -151,11 +156,23 @@ public class PermissionActivity
                     list.addAll(temp);
 
                     adapter.notifyDataSetChanged();
+
+                    noActiveUserText.setVisibility(
+                            list.isEmpty()
+                                    ? android.view.View.VISIBLE
+                                    : android.view.View.GONE
+                    );
                 });
 
             } catch (Exception e) {
 
                 e.printStackTrace();
+
+                runOnUiThread(() -> noActiveUserText.setVisibility(
+                        list.isEmpty()
+                                ? android.view.View.VISIBLE
+                                : android.view.View.GONE
+                ));
             }
 
         }).start();

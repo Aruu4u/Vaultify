@@ -48,7 +48,7 @@
                 android:id="@+id/fileDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2.4 MB • 2 days ago"
+                android:text="2.4 MB - 2 days ago"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />

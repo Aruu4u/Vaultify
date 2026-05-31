@@ -102,7 +102,7 @@ public class PermissionAdapter
                     remaining / 3600;
 
             text +=
-                    " • expires in "
+                    " - expires in "
                             + hours
                             + " hrs";
         }
